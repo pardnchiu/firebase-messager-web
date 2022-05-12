@@ -1,6 +1,6 @@
-# Firebase Messager (Web)
+# Firebase Messager
 
-- 名稱: Firebase Messager (Web)
+- 名稱: Firebase Messager (Web ver.)
 - 開發: [Pardn Chiu](mailto:chiuchingwei@icloud.com)
 - 授權: [MIT License](./LICENSE)
 - 狀態: 測試版 (未完整版本)
@@ -30,5 +30,7 @@
 | 貼上專案資訊 |
 | --- |
 | ![project-index](./preview/paste-data.png) |
+
+Copyright (c) 2022 Pardn Ltd 帕登國際有限公司
 
 
