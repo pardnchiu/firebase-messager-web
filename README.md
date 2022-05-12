@@ -15,7 +15,7 @@
 | --- |
 | ![login](./preview/login.png)
 
-### 導入專案
+### 導入Firebase
 
 懂的可以直接略過
 
