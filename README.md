@@ -3,6 +3,7 @@
 - 名稱: Firebase Messager (Web)
 - 開發: [Pardn Chiu](mailto:chiuchingwei@icloud.com)
 - 授權: [MIT License](./LICENSE)
+- 狀態: 測試版 (未完整版本)
 
 ### 引用
 
