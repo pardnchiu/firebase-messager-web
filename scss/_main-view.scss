@@ -1,0 +1,307 @@
+body {
+  background-color: #f4f4f4;
+  #page-hint {
+    position: absolute;
+    z-index: 1000;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.25rem 1rem;
+    font-size: 0.75rem;
+    background-color: rgb(40, 40, 45);
+    color: #fff;
+    border-radius: 0.5rem;
+    animation: show 0.5s;
+    -webkit-animation: show 0.5s;
+    &.hide {
+      opacity: 0;
+      animation: hide 0.5s;
+      -webkit-animation: hide 0.5s;
+    }
+  }
+  #page-title {
+    position: absolute;
+    top: 0;
+    left: 1.5rem;
+    line-height: 4.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  #main-view {
+    position: absolute;
+    top: 4.5rem;
+    left: 1.5rem;
+    bottom: 1.5rem;
+    width: calc(100% - 3rem - 320px - 1.5rem);
+    height: calc(100% - 6rem);
+    border-radius: 0.5rem;
+    background-color: #fff;
+    -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: scroll;
+    > nav {
+      position: absolute;
+      display: block;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4rem;
+      border-bottom: 1px solid #0000001e;
+      > ul {
+        position: relative;
+        display: block;
+        padding: 0 0.5rem;
+        width: 100%;
+        font-size: 0;
+        > li {
+          position: relative;
+          display: inline-block;
+          vertical-align: top;
+          margin: 0.75rem 0.5rem;
+          padding: 0 0.75rem;
+          width: initial;
+          line-height: 2.5rem;
+          font-size: 1rem;
+          font-weight: 500;
+          border-radius: 0.5rem;
+          background-color: #0000000a;
+          cursor: pointer;
+          > i {
+            margin-right: 0.25rem;
+          }
+          &.selected {
+            background-color: steelblue;
+            color: #fff;
+            > i {
+              color: #fff;
+            }
+          }
+        }
+      }
+    }
+    > section[df=list] {
+      position: absolute;
+      display: block;
+      top: 4rem;
+      left: 0;
+      bottom: 0;
+      width: 320px;
+      background-color: #fff;
+      border-right: 1px solid #0000001e;
+      > nav {
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 320px;
+        height: 4rem;
+        background-color: #fff;
+        border-right: 1px solid #0000001e;
+        > i {
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+          width: 2rem;
+          line-height: 2rem;
+          text-align: center;
+          z-index: 1;
+        }
+        > input {
+          position: relative;
+          margin-top: 1rem;
+          margin-left: 1rem;
+          padding-left: 2rem;
+          padding-right: 1rem;
+          width: calc(320px - 2rem);
+          line-height: 2rem;
+          border: 1px solid #0000001e;
+          border-radius: 0.25rem;
+        }
+      }
+      > ul {
+        position: absolute;
+        display: block;
+        top: 4rem;
+        left: 0;
+        bottom: 0;
+        width: 320px;
+        border-right: 1px solid #0000001e;
+        &[df*=empty] {
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: none;
+          &[df*=inbox] {
+            background-image: url(../image/empty/inbox.svg);
+          }
+          &[df*=auth] {
+            background-image: url(../image/empty/auth.svg);
+          }
+        }
+        > li {
+          position: relative;
+          display: block;
+          padding: 1rem 0;
+          width: 100%;
+          height: initial;
+          border-top: 1px solid #0000001e;
+          cursor: pointer;
+          &:nth-child(1) {
+            margin-top: 0;
+            padding-top: 0.5rem;
+            border-top: none;
+          }
+          &.selected {
+            background-color: #0000001e;
+          }
+          > strong {
+            position: relative;
+            display: block;
+            padding: 0 1rem;
+            font-size: 1.125rem;
+          }
+          > em {
+            position: relative;
+            display: block;
+            padding: 0 1rem;
+            font-size: 0.75rem;
+            font-style: normal;
+            overflow: hidden;
+          }
+          > p {
+            position: relative;
+            display: block;
+            line-height: 1.5rem;
+            max-height: 3rem;
+            padding: 0 1rem;
+            font-size: 0.875rem;
+            font-style: normal;
+            overflow: hidden;
+  
+          }
+        }
+      }
+    }
+    > section[df=body] {
+      position: absolute;
+      display: block;
+      top: 4rem;
+      left: 320px;
+      bottom: 0;
+      right: 0;
+      width: calc(100% - 320px);
+      height: calc(100% - 4rem);
+      > nav {
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4rem;
+        border-bottom: 1px solid #0000001e;
+      }
+      > ul {
+        position: absolute;
+        display: block;
+        left: 0;
+        bottom: 0;
+        padding: 1rem 1rem 7rem;
+        width: 100%;
+        height: initial;
+        max-height: 100%;
+        overflow: scroll;
+        > li {
+          position: relative;
+          display: block;
+          width: 100%;
+          font-size: 0;
+          &[df*=right] {
+            text-align: right;
+            > p {
+              margin-right: 0.5rem;
+              background-color: steelblue;
+              color: #fff;
+            }
+          }
+          &[df*=left] {
+            text-align: left;
+            > p {
+              margin-left: 0.5rem;
+              background-color: #f0f0f0;
+            }
+          }
+          > img {
+            position: relative;
+            display: inline-block;
+            vertical-align: bottom;
+            margin: 0 1px 1rem;
+            width: 2rem;
+            height: 2rem;
+            background-color: #0000001e;
+            border-radius: 50%;
+          }
+          > p {
+            position: relative;
+            display: inline-block;
+            vertical-align: bottom;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0.75rem;
+            max-width: 70%;
+            line-height: 1.5rem;
+            font-size: 1rem;
+            border-radius: 0.75rem;
+          }
+        }
+      }
+      > div {
+        position: absolute;
+        display: block;
+        left: 1rem;
+        bottom: 1rem;
+        right: 1rem;
+        height: 6rem;
+        border: 1px solid #0000001e;
+        border-radius: 1rem;
+        > textarea {
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          padding: 1rem;
+          width: 100%;
+          height: 100%;
+          border-radius: inherit;
+          resize: none;
+        }
+        > button {
+          position: absolute;
+          bottom: 0.5rem;
+          right: 0.5rem;
+          padding: 0.25rem 1rem;
+          font-size: 1rem;
+          border: none;
+          outline: none;
+          background-color: #0000000a;
+          border-radius: 0.5rem;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  #right-view {
+    position: absolute;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 320px;
+    height: calc(100% - 3rem);
+    border-radius: 0.5rem;
+    background-color: #fff;
+    -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: scroll;
+  }
+}

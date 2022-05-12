@@ -1,0 +1,156 @@
+@keyframes hide {
+  from { 
+    opacity: 1;
+  }
+  to { 
+    opacity: 0;
+  }
+}
+@-webkit-keyframes hide {
+  from { 
+    opacity: 1;
+  }
+  to { 
+    opacity: 0;
+  }
+}
+@keyframes show {
+  from { 
+    opacity: 0;
+  }
+  to { 
+    opacity: 1;
+  }
+}
+@-webkit-keyframes show {
+  from { 
+    opacity: 0;
+  }
+  to { 
+    opacity: 1;
+  }
+}
+#unauth-view {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: #f2f2f2;
+  z-index: 1000;
+  &.done {
+    opacity: 0;
+    animation: hide 0.5s;
+    -webkit-animation: hide 0.5s;
+  }
+  > div {
+    position: absolute;
+    top: calc(50% - 2rem);
+    left: 50%;
+    transform: translate(-55%, -50%);
+    padding: 4rem 0;
+    width: 50%;
+    min-width: 320px;
+    max-width: 400px;
+    height: initial;
+    background-color: #fff;
+    border-radius: 1.5rem;
+    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 8px rgba(0, 0, 0, 0.05);
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 8px rgba(0, 0, 0, 0.05);
+    &[df=signup] {
+      > *[df*=login] {
+        display: none;
+      }
+      > *[df*=signup] {
+        display: block;
+      }
+    }
+    > *[df*=signup] {
+      display: none;
+    }
+    > div {
+      position: relative;
+      display: inline-block;
+      vertical-align: top;
+      left: 50%;
+      transform: translateX(-55%);
+      margin-bottom: 3rem;
+      width: initial;
+      height: 100px;
+      font-size: 0;
+      > img {
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+        padding: 5px;
+        object-fit: cover;
+        width: 100px;
+        height: 100px;
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+        -webkit-filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); 
+      }
+      > div {
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+        margin-left: 1rem;
+        padding-top: calc(50px - 2rem);
+        max-width: calc(100% - 100px - 1rem);
+        > h6 {
+          position: relative;
+          display: block;
+          line-height: 2rem;
+          font-size: 2rem;
+        }
+        > p {
+          position: relative;
+          display: block;
+          line-height: 2rem;
+          font-size: 1.5rem;
+        }
+      }
+    }
+    > input {
+      position: relative;
+      margin-top: 1rem;
+      margin-left: 50%;
+      padding: 0 1rem;
+      width: 50%;
+      line-height: 2.5rem;
+      min-width: 320px;
+      max-width: 480px;
+      transform: translateX(-50%);
+      background-color: #f3f3f3;
+      border-radius: 0.5rem;
+    }
+    > button[df*=main] {
+      position: relative;
+      margin-top: 2rem;
+      margin-left: 50%;
+      padding: 0 1rem;
+      width: 50%;
+      line-height: 2.5rem;
+      min-width: 320px;
+      max-width: 480px;
+      transform: translateX(-50%);
+      background-color: #f3f3f3;
+      border-radius: 0.5rem;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+    > button[df*=sub] {
+      position: relative;
+      margin-left: 50%;
+      padding: 0 1rem;
+      width: 25%;
+      line-height: 2.5rem;
+      transform: translateX(-50%);
+      background-color: transparent;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+  }
+}
