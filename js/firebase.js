@@ -3,17 +3,7 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-auth.js";
 import { getDatabase, ref, set, get, child, push, update, onValue } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-database.js";
 
-// const firebaseConfig = {
-//   /* Firebase 專案資訊 */
-//   // apiKey            : "",
-//   // authDomain        : "",
-//   // databaseURL       : "",
-//   // projectId         : "",
-//   // storageBucket     : "",
-//   // messagingSenderId : "",
-//   // appId             : "",
-//   // measurementId     : ""
-// };
+/* 覆蓋 Firebase 專案資料 */
 const firebaseConfig = {
   apiKey            : "AIzaSyBM8O4cG40qtW_hBJgEKHjQRgwmeBNomN8",
   authDomain        : "pardnltd-firebase-messager.firebaseapp.com",
@@ -134,13 +124,16 @@ function getAuths(){
     elmUserList.setAttribute('df', `user-list ${snapshot.exists() ? "" : "empty"}`);
     /* 插入用戶列表 */
     list.sort((a, b) => b.update - a.update).forEach((user) => {
-      const elmName     = document.createElement('strong');
-      elmName.innerText = String(user.name);
-      const elmDate     = document.createElement('p');
-      elmDate.innerText = transTimestampToStr(Number(user.login));
-      const elmUserRow  = document.createElement('li');
+      const elmName       = document.createElement('strong');
+      elmName.innerText   = String(user.name);
+      const elmDate       = document.createElement('em');
+      elmDate.innerText   = `${transTimestampToStr(Number(user.login))}登入`;
+      const elmEmail      = document.createElement('p');
+      elmEmail.innerText  = hideUserEmail(user.email);
+      const elmUserRow    = document.createElement('li');
       elmUserRow.appendChild(elmName);
       elmUserRow.appendChild(elmDate);
+      elmUserRow.appendChild(elmEmail);
       elmUserRow.onclick = function(){
         if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
         /* 插入新內容 */
@@ -206,6 +199,7 @@ function getCheckboxContent(user){
   if (!auth_user) return error('請先登入');
   /* 標註當前user */
   chatbox_user = user;
+  "main-view"._().setAttribute('uid', user.uid);
   document.getElementById('chatbox-title').parentElement.classList.add('show');
   document.getElementById('chatbox-title').innerText = user.name;
   chatboxBtnsOnClick();
@@ -312,6 +306,7 @@ function chatboxBtnsOnClick(){
     if (chat_listener) chat_listener();
     chat_listener     = null;
     chatbox_user  = null;
+    "main-view"._().setAttribute('uid', '');
     document.getElementById('chatbox-body').innerHTML = null;
     document.getElementById('chatbox-title').parentElement.classList.remove('show');
     document.getElementById('chatbox-title').innerText = null;
@@ -320,7 +315,7 @@ function chatboxBtnsOnClick(){
 
 if (document.getElementById('chat-act')) document.getElementById('chat-act').onclick = function(){
   if (!auth_user)                             return error('請先登入');
-  if (!chatbox_user)                      return error('未選擇用戶');
+  if (!chatbox_user)                          return error('未選擇用戶');
   if (!document.getElementById('chat-input')) return error('無輸入框');
   const str = String(document.getElementById('chat-input').value);
   document.getElementById('chat-input').value = "";
@@ -410,6 +405,7 @@ if (document.getElementById('signup-show')) document.getElementById('signup-show
 if (login_data.email && login_data.passwd){
   authLogin(login_data.email, login_data.passwd);
 };
+
 function transTimestampToStr(timestamp){
   let now     = Math.floor(Date.now() / 1000);
   let second  = now - Number(timestamp);
@@ -423,4 +419,14 @@ function transTimestampToStr(timestamp){
     case (second >= 60): return `${Math.floor(second / 60)}分鐘前`;
     default: return `${second}秒前`;
   };
+};
+
+function hideUserEmail(email) {
+  let index = email.indexOf('@');
+  let str = email[0];
+  for (let i = 0; i < index - 2; i++) {
+    str += "*";
+  };
+  str += email[12 - 1];
+  return `${str}${email.slice(12, email.length)}`;
 };

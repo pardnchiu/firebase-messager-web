@@ -28,13 +28,23 @@
     height: calc(100% - 4.5rem);
     border-radius: 0;
   }
+  &[uid=""]{
+    > section[df=list] {
+      @media screen and (max-width: 639px) {
+        display: block;
+        left: 0;
+      }
+    }
+  }
   > nav {
     position: absolute;
     display: block;
+    z-index: 2;
     top: 0;
     left: 0;
     right: 0;
     height: 4rem;
+    background-color: #fff;
     border-bottom: 1px solid #0000001e;
     > ul {
       position: relative;
@@ -50,7 +60,7 @@
         padding: 0 0.75rem;
         width: initial;
         line-height: 2.5rem;
-        font-size: 1rem;
+        font-size: 0.875rem;
         font-weight: 500;
         border-radius: 0.5rem;
         background-color: #0000000a;
@@ -71,17 +81,31 @@
   > section[df=list] {
     position: absolute;
     display: block;
+    z-index: 1;
     top: 4rem;
     left: 0;
     bottom: 0;
     width: 320px;
-    background-color: #fff;
+    background-color: #fdfdfd;
     @media screen and (max-width: 1279px) {
       width: 240px;
     }
     @media screen and (max-width: 639px) {
       display: none;
       left: -100%;
+      width: 70%;
+      -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+      -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    @media screen and (max-width: 479px) {
+      width: 85%;
+    }
+    @media screen and (max-width: 413px) {
+      width: 100%;
+      -moz-box-shadow: none;
+      -webkit-box-shadow: none;
+      box-shadow: none;
     }
     > nav {
       position: absolute;
@@ -180,12 +204,14 @@
   > section[df=body] {
     position: absolute;
     display: block;
+    z-index: 0;
     top: 4rem;
     left: 320px;
     bottom: 0;
     right: 0;
     width: calc(100% - 320px);
     height: calc(100% - 4rem);
+    background-color: #fff;
     @media screen and (max-width: 1279px) {
       left: 240px;
       width: calc(100% - 240px);
