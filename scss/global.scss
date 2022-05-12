@@ -49,5 +49,44 @@ select {
   user-select: initial;
 }
 
-@import "./main-view";
+body {
+  background-color: #f4f4f4;
+  > div[df=body] {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1280px;
+    height: 100%;
+    #page-hint {
+      position: absolute;
+      z-index: 1000;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.25rem 1rem;
+      font-size: 0.75rem;
+      background-color: rgb(40, 40, 45);
+      color: #fff;
+      border-radius: 0.5rem;
+      animation: show 0.5s;
+      -webkit-animation: show 0.5s;
+      &.hide {
+        opacity: 0;
+        animation: hide 0.5s;
+        -webkit-animation: hide 0.5s;
+      }
+    }
+    #page-title {
+      position: absolute;
+      top: 0;
+      left: 1.5rem;
+      line-height: 4.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+  }
+}
 @import "./unauth-view";
+@import "./main-view";
+@import "./right-view";

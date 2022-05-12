@@ -45,7 +45,7 @@
     position: absolute;
     top: calc(50% - 2rem);
     left: 50%;
-    transform: translate(-55%, -50%);
+    transform: translate(-50%, -50%);
     padding: 3rem 0 6rem;
     width: 50%;
     min-width: 320px;
@@ -56,6 +56,16 @@
     -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 8px rgba(0, 0, 0, 0.05);
     -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 8px rgba(0, 0, 0, 0.05);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 8px rgba(0, 0, 0, 0.05);
+    @media screen and (max-width: 1279px) {
+      width: 100%;
+    }
+    @media screen and (max-width: 479px) {
+      top: 50%;
+      padding-top: 5rem;
+      max-width: none;
+      height: 100%;
+      border-radius: 0;
+    }
     &[df=signup] {
       > *[df*=login] {
         display: none;
@@ -67,7 +77,7 @@
     > *[df*=signup] {
       display: none;
     }
-    > div {
+    > figure {
       position: relative;
       display: inline-block;
       vertical-align: top;
@@ -88,7 +98,7 @@
         filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
         -webkit-filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2)); 
       }
-      > div {
+      > figcaption {
         position: relative;
         display: inline-block;
         vertical-align: top;
@@ -109,18 +119,37 @@
         }
       }
     }
-    > input {
+    > div {
       position: relative;
+      display: block;
       margin-top: 1rem;
       margin-left: 50%;
-      padding: 0 1rem;
       width: 50%;
-      line-height: 2.5rem;
+      margin-right: -50%;
       min-width: 320px;
       max-width: 480px;
+      height: 2.5rem;
       transform: translateX(-50%);
-      background-color: #f3f3f3;
       border-radius: 0.5rem;
+      > i {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 2.5rem;
+        line-height: 2.5rem;
+        font-size: 0.875rem;
+        text-align: center;
+        z-index: 1;
+      }
+      > input {
+        position: relative;
+        display: block;
+        padding-left: 2.5rem;
+        padding-right: 1rem;
+        width: 100%;
+        line-height: 2.5rem;
+        background-color: #f3f3f3;
+      }
     }
     > button[df*=main] {
       position: relative;
