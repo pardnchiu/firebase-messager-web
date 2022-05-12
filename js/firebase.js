@@ -14,6 +14,10 @@ const firebaseConfig = {
   appId             : "1:913598491540:web:bf2e878095214a7284fd81",
   measurementId     : "G-GRY5WSZQ19"
 };
+// const login_data  = {
+//   email : "chiuchingwei@icloud.com",
+//   passwd: "Rroc24924502"
+// };
 const app       = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth      = getAuth(app);
