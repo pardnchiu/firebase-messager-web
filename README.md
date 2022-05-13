@@ -9,17 +9,18 @@
 - 名稱: [Firebase Messager (Web ver.)](https://pardnchiu.github.io/firebase-messager-web/)
 - 開發: [Pardn Chiu](mailto:chiuchingwei@icloud.com)
 - 授權: [MIT License](./LICENSE)
-- 狀態: 測試版 (未完整版本)
+- 源碼: https://github.com/pardnchiu/firebase-messager-web
 
-### 附註
+### 提醒
 
 - 下載專案使用需停用本機檔案讀取限制，否則無法讀取 firebase.js。
 
 ### 引用
 
-- [Firebase JS 9.8.1](https://firebase.google.com/docs/web/setup)
-- [Font Awesome 5.1](https://fontawesome.com)
-- [Free Userpics Pack](https://userpics.craftwork.design)
+- 存儲: [Firebase JS 9.8.1](https://firebase.google.com/docs/web/setup)
+- 圖示: [Font Awesome 5.1](https://fontawesome.com)
+- 頭像: [Free Userpics Pack](https://userpics.craftwork.design)
+- 圖片: [Unsplash]()
 
 ### 畫面
 

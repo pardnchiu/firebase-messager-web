@@ -20,10 +20,11 @@ const auth      = getAuth(app);
 const db        = getDatabase(app);
 const dbRef     = ref(getDatabase(app));
 
-let auth_user     = null;
-let chatbox_user  = null;
-let chat_listener = null;
-let user_block    = [];
+let auth_user       = null;
+let chatbox_user    = null;
+let chatboxListener = null;
+let chatListener    = null;
+let user_block      = [];
 String.prototype._ = function(){
   var str   = String(this);
   var isId  = !/(\.|\=|\[|\])/g.test(str);
@@ -91,18 +92,17 @@ String.prototype._all = function(){
   };
   /* 更換頁面 -> 註冊用戶 */
   if ("get-auths"._()) "get-auths"._().onclick = function(){
-    pageSwitch('get-auths');
-    getAuths();
+    pageSwitch('get-auths', this.parentElement);
+    _getAuthList();
   };
   /* 更換頁面 -> 收件匣 */
   if ("get-chatbox"._()) "get-chatbox"._().onclick = function(){
-    pageSwitch('get-chatbox');
-    getChatboxs();
+    pageSwitch('get-chatbox', this.parentElement);
+    _getChatbox(false);
   };
   /* 更換頁面 -> 已封存 */
   if ("get-auths-hide"._()) "get-auths-hide"._().onclick = function(){
-    pageSwitch('get-auths-hide');
-
+    pageSwitch('get-auths-hide', this.parentElement);
     const elmUserList = document.getElementById('user-list');
     /* 插入用戶列表 */
     user_block
@@ -122,8 +122,8 @@ String.prototype._all = function(){
   };
   /* 更換頁面 -> 已封鎖 */
   if ("get-auths-block"._()) "get-auths-block"._().onclick = function(){
-    pageSwitch('get-auths-block');
-
+    pageSwitch('get-auths-block', this.parentElement);
+    _getChatbox(true);
     const elmUserList = document.getElementById('user-list');
     /* 插入用戶列表 */
     user_block
@@ -136,7 +136,7 @@ String.prototype._all = function(){
       elmUserRow.onclick = function(){
         if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
         /* 插入新內容 */
-        getCheckboxContent(user);
+        _getChat(user);
       };
       elmUserList.appendChild(elmUserRow);
     });
@@ -155,9 +155,11 @@ String.prototype._all = function(){
    * 
    */
   /* 更換頁面 */
-  function pageSwitch(page){
+  function pageSwitch(page, nav){
     // document.getElementById('page-title').innerText = "過往紀錄";
+    nav.classList.remove('show');
     document.getElementById('user-list').innerHTML  = null;
+    if (chatboxListener) chatboxListener();
     
     ["get-auths", "get-chatbox", "get-auths-hide", "get-auths-block"].forEach(e => {
       if (e === page) e._().classList.add('selected');
@@ -202,14 +204,14 @@ function authLogin(email, passwd, completion){
     /* 設定當前用戶 */
     auth_user = userCredential.user;
     /* 更新用戶登入時間 */
-    (function updateUserLogin(){
+    (function(){
       let db      = getDatabase();
       let updates = {}
       updates[`auth/${auth_user.uid}/login`] = now
       update(ref(db), updates);
     }());
     /* 移除非用戶遮罩 */
-    (function removeUnauthView(){
+    (function(){
       /* 淡化非用戶遮罩 */
       if (document.getElementById('unauth-view')) document.getElementById('unauth-view').classList.add('done');
       let timer = setTimeout(() => {
@@ -219,24 +221,24 @@ function authLogin(email, passwd, completion){
       }, 500);
     }());
     /* 讀取用戶資料 */
-    getUserData(auth_user.uid, (snapshot) => {
+    _getAuthSingle(auth_user.uid, (snapshot) => {
       if (!snapshot) return error('用戶不存在');
       auth_user.email = snapshot.val().email;
       auth_user.name  = snapshot.val().name;
       auth_user.head  = snapshot.val().head;
-      "auth-head"._().src = `./image/Userpics/SVG/Square/${snapshot.val().head}`;
-      "auth-name"._().innerText = snapshot.val().name;
-      "auth-signup"._().innerText = transTimestampToStr(snapshot.val().signup);
+      "auth-head"._().src         = `./image/Userpics/SVG/Square/${snapshot.val().head}`;
+      "auth-name"._().innerText   = snapshot.val().name;
+      "auth-signup"._().innerText = `${transTimestampToStr(snapshot.val().signup)}註冊`;
       /* 讀取聊天列表 */
-      getChatboxs();
-    })
+      _getChatbox(false);
+    });
   })
   .catch((error) => {
     console.log(error.message);
   });
 };
 /* 讀取用戶資料 */
-function getUserData(uid, completion){
+function _getAuthSingle(uid, completion){
   get(child(dbRef, `auth/${uid}`))
   .then((snapshot) => {
     if (!snapshot.exists()) return (
@@ -249,32 +251,32 @@ function getUserData(uid, completion){
   });
 };
 /* 取得註冊用戶 */
-function getAuths(){
+function _getAuthList(){
   if (!auth_user) return error('請先登入');
   get(child(dbRef, 'auth')).then((snapshot) => {
-    const elmUserList = document.getElementById('user-list');
-    const list = (function(){
-      let ary = [];
-      Object.keys(snapshot.val()).forEach((uid) => {
-        if (String(uid) === String(auth_user.uid)) return;
-        let obj = snapshot.val()[uid];
-        obj.uid = uid;
-        /* 已封鎖 */
-        if (user_block.filter(a => a.uid === obj.uid).length) return;
-        ary.push(obj);
-      });
-      return ary;
-    }());
-    /* 設定空白提示 */
-    elmUserList.setAttribute('df', `${list.length ? "" : "empty inbox"}`);
-    /* 插入用戶列表 */
+
+    if (!snapshot.exists()) return;
+    /* */
+    let list = [];
+    Object.keys(snapshot.val()).forEach((uid) => {
+      if (String(uid) === String(auth_user.uid)) return;
+      let obj = snapshot.val()[uid];
+      obj.uid = uid;
+      /* 已封鎖 */
+      if (user_block.filter(a => a.uid === obj.uid).length) return;
+      list.push(obj);
+    });
+    /*  */
+    "user-list"._().setAttribute('df', `${list.length ? "" : "empty inbox"}`);
+    /* 插入用戶 */
+    if (!list.length) return;
     list.sort((a, b) => b.update - a.update).forEach((user) => {
-      elmUserList.appendChild(
+      "user-list"._().appendChild(
         _('li', {
           onclick: function(){
             if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
-            /* 插入新內容 */
-            getCheckboxContent(user);
+            /* 插入內容 */
+            _getChat(user);
           }
         }, [
           _('img', { src: `./image/Userpics/SVG/Square/${user.head}` }),
@@ -290,67 +292,77 @@ function getAuths(){
 
 };
 /* 取得聊天室列表 */
-function getChatboxs(){
+function _getChatbox(isBlock){
   if (!auth_user) return error('請先登入');
-  get(child(dbRef, `chatbox/${auth_user.uid}`))
-  .then((snapshot) => {
+  /* init */
+  "user-list"._().innerHTML = null;
+  user_block = [];
+  /* 取得資料 */
+  if (chatboxListener) chatboxListener();
+  chatboxListener = onValue(ref(db, `chatbox/${auth_user.uid}`), (snapshot) => {
     if (!snapshot.exists()) return;
-    user_block = [];
-    const list = (function(){
-      let ary = [];
-      Object.keys(snapshot.val()).forEach((uid) => {
-        let obj = snapshot.val()[uid];
-        obj.uid = uid;
-        /* 已封鎖 */
-        if (Number(obj.hide) === 1) return user_block.push(obj);
-        ary.push(obj);
-      });
-      return ary;
-    }());
-    /* 設定空白提示 */
-    "user-list"._().setAttribute('df', `${list.length ? "" : "empty inbox"}`);
-    /* 插入聊天列表 */
-    list.sort((a, b) => b.update - a.update).forEach((user) => {
-      "user-list"._().appendChild(
-        _('li', {
-          onclick: function(){
-            if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
-            /* 插入新內容 */
-            getCheckboxContent(user);
-          }
-        }, [
-          _('img', { src: `./image/Userpics/SVG/Square/${user.head}` }),
-          _('strong', { innerText: String(user.name) }),
-          _('em', { innerText: transTimestampToStr(Number(user.update)) }),
-          _('p', { innerText: user.last })
-        ])
-      );
+    /* 調整資料 */
+    let ary = [];
+    Object.keys(snapshot.val()).forEach((uid) => {
+      let obj = snapshot.val()[uid];
+      obj.uid = uid;
+      switch (isBlock) {
+        case true:
+          if (Number(obj.block) === 1) user_block.push(obj), ary.push(obj);
+          break;
+        case false:
+          if (Number(obj.block) === 1) user_block.push(obj);
+          else ary.push(obj);
+          break;
+      };
     });
-  })
-  .catch((error) => {
-    console.error(error);
+    /* 插入聊天 */
+    (function(){
+      if (!ary.length) return;
+      /* 移除提示 */
+      "user-list"._().setAttribute('df', "");
+      /* 插入資料 */
+      ary.sort((a, b) => b.update - a.update).forEach((user) => {
+        "user-list"._().appendChild(
+          _('li', {
+            onclick: function(){
+              if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
+              /* 插入新內容 */
+              _getChat(user);
+            }
+          }, [
+            _('img', { src: `./image/Userpics/SVG/Square/${user.head}` }),
+            _('strong', { innerText: String(user.name) }),
+            _('em', { innerText: transTimestampToStr(Number(user.update)) }),
+            _('p', { innerText: user.last ? user.last : "無聊天內容" })
+          ])
+        );
+      });
+    }());
   });
 };
 /* 讀取聊天內容 */
-function getCheckboxContent(user){
+function _getChat(user){
   if (!auth_user) return error('請先登入');
-  /* 標註當前user */
-  chatbox_user = user;
-  "main-view"._().setAttribute('uid', user.uid);
-  "chatbox-head"._().src = `./image/Userpics/SVG/Square/${user.head}`;
-  document.getElementById('chatbox-title').parentElement.classList.add('show');
-  document.getElementById('chatbox-title').innerText = user.name;
-  chatboxBtnsOnClick();
   /* 刪除原有監聽器 */
-  if (chat_listener) chat_listener();
-  chat_listener = onValue(ref(db, `chat/${auth_user.uid}/${user.uid}`), (snapshot) => {
-    /* 清空當前內容 */
-    document.getElementById('chatbox-body').innerHTML = null;
-    /* 插入聊天內容 */
+  if (chatListener) chatListener();
+  chatListener = onValue(ref(db, `chat/${auth_user.uid}/${user.uid}`), (snapshot) => {
+    /* init */
+    chatbox_user = user;
+    "main-view"._().setAttribute('uid', user.uid);
+    "chatbox-head"._().src = `./image/Userpics/SVG/Square/${user.head}`;
+    "chatbox-title"._().innerText = user.name;
+    "chatbox-title"._().parentElement.classList.add('show');
+    "chatbox-body"._().innerHTML = null;
+    const isBlock = snapshot.val() ? snapshot.val().block : null;
+    isBlock ? "chatbox-body"._().parentElement.classList.add('block') : "chatbox-body"._().parentElement.classList.remove('block');
+    initChat(isBlock);
+    if (!snapshot.exists()) return;
     Object.keys(snapshot.val())
     /* 排序 -> 舊到新 */
     .sort((a, b) => a - b)
     .forEach((timestamp) => {
+      if (timestamp === "block") return;
       /* 聊天內容 */
       const val     = snapshot.val()[timestamp];
       const isOwner = Boolean(String(val.from) === String(auth_user.uid));
@@ -389,16 +401,20 @@ function postChat(str){
   if (!str.replace(/ /g, '').length) return;
   /* 個人收件匣紀錄 */
   set(ref(db, `chatbox/${auth_user.uid}/${chatbox_user.uid}`), {
-    dismiss : 0,
-    last    : str,
-    name    : chatbox_user.name,
-    head    : chatbox_user.head,
-    unread  : 1,
-    update  : now
+    uid     : chatbox_user.uid,
+    last    : str,                /* 最新內容 */
+    name    : chatbox_user.name,  /* 用戶名稱 */
+    head    : chatbox_user.head,  /* 用戶頭像 */
+    unread  : 1,                  /* 未讀 */
+    block   : 0,                  /* 封鎖 */
+    hide    : 0,                  /* 隱藏 */
+    update  : now,                /* 時間 */
+    dismiss : 0                   /* 刪除 */
   });
 
   /* 個人對話內容紀錄 */
   set(ref(db, `chat/${auth_user.uid}/${chatbox_user.uid}/${now}`), {
+    uid     : chatbox_user.uid,
     content : str,
     date    : now,
     dismiss : 0,
@@ -408,16 +424,20 @@ function postChat(str){
   
   /* 對方收件匣紀錄 */
   set(ref(db, `chatbox/${chatbox_user.uid}/${auth_user.uid}`), {
-    dismiss : 0,
-    last    : str,
-    name    : auth_user.name,
-    head    : auth_user.head,
-    unread  : 1,
-    update  : now
+    uid     : auth_user.uid,
+    last    : str,              /* 最新內容 */
+    name    : auth_user.name,   /* 用戶名稱 */
+    head    : auth_user.head,   /* 用戶頭像 */
+    unread  : 1,                /* 未讀 */
+    block   : 0,                /* 封鎖 */
+    hide    : 0,                /* 隱藏 */
+    update  : now,              /* 時間 */
+    dismiss : 0                 /* 刪除 */
   });
 
   /* 對方對話內容紀錄 */
   set(ref(db, `chat/${chatbox_user.uid}/${auth_user.uid}/${now}`), {
+    uid     : auth_user.uid,
     content : str,
     date    : now,
     dismiss : 0,
@@ -426,21 +446,44 @@ function postChat(str){
   });
 };
 /* 聊天框按鈕 */
-function chatboxBtnsOnClick(){
-  if (document.getElementById('btn-chatbox-user')) document.getElementById('btn-chatbox-user').onclick = function(){
+function initChat(isBlock){
+  if ("btn-chatbox-user"._()) "btn-chatbox-user"._().onclick = function(){
     
   };
-  if (document.getElementById('btn-chatbox-delete')) document.getElementById('btn-chatbox-delete').onclick = function(){
-    
+  if ("btn-chatbox-block"._()) {
+    isBlock ? "btn-chatbox-block"._().classList.add('selected') : "btn-chatbox-block"._().classList.remove('selected')
+    "btn-chatbox-block"._().onclick = function(){
+      if (!confirm(`${!isBlock ? "" : "解除"}封鎖${!isBlock ? "用戶" : ""}，確認？`)) return;
+      let now           = Math.floor(Date.now() / 1000);
+      let chatboxUpdate = {}
+      let chatUpdate    = {}
+      chatboxUpdate[`chatbox/${auth_user.uid}/${chatbox_user.uid}/uid`]     = chatbox_user.uid;
+      chatboxUpdate[`chatbox/${auth_user.uid}/${chatbox_user.uid}/name`]    = chatbox_user.name;
+      chatboxUpdate[`chatbox/${auth_user.uid}/${chatbox_user.uid}/head`]    = chatbox_user.head;
+      chatboxUpdate[`chatbox/${auth_user.uid}/${chatbox_user.uid}/block`]   = !isBlock ? 1 : 0;
+      chatboxUpdate[`chatbox/${auth_user.uid}/${chatbox_user.uid}/update`]  = now;
+      chatUpdate[`chat/${auth_user.uid}/${chatbox_user.uid}/block`] = !isBlock ? 1 : 0;
+      update(ref(db), chatboxUpdate);
+      update(ref(db), chatUpdate);
+      !isBlock ? "get-auths-block"._().click() : "get-chatbox"._().click();
+    }
   };
-  if (document.getElementById('btn-chatbox-close')) document.getElementById('btn-chatbox-close').onclick = function(){
+  /* 對話 - 刪除對話 */
+  if ("btn-chatbox-delete"._()) "btn-chatbox-delete"._().onclick = function(){
+    if (!confirm('刪除對話，確認？')) return;
+    /* 個人收件匣紀錄 */
+    set(ref(db, `chatbox/${auth_user.uid}/${chatbox_user.uid}`), null);
+    /* 個人對話內容紀錄 */
+    set(ref(db, `chat/${auth_user.uid}/${chatbox_user.uid}`), null);
+  };
+  if ("btn-chatbox-close"._()) "btn-chatbox-close"._().onclick = function(){
     closeChatbox()
   };
 };
 
 function closeChatbox(){
-  if (chat_listener) chat_listener();
-  chat_listener = null;
+  if (chatListener) chatListener();
+  chatListener = null;
   chatbox_user  = null;
   "main-view"._().setAttribute('uid', '');
   document.getElementById('chatbox-body').innerHTML = null;
