@@ -23,6 +23,7 @@ const dbRef     = ref(getDatabase(app));
 let auth_user     = null;
 let chatbox_user  = null;
 let chat_listener = null;
+let user_block    = [];
 String.prototype._ = function(){
   var str   = String(this);
   var isId  = !/(\.|\=|\[|\])/g.test(str);
@@ -83,19 +84,57 @@ String.prototype._all = function(){
       error(errorMessage);
     });
   };
-  /* 更換頁面 -> 平台用戶 */
+  /* 更換頁面 -> 註冊用戶 */
   if ("get-auths"._()) "get-auths"._().onclick = function(){
     pageSwitch('get-auths');
     getAuths();
   };
-  /* 更換頁面 -> 所有訊息 */
+  /* 更換頁面 -> 收件匣 */
   if ("get-chatbox"._()) "get-chatbox"._().onclick = function(){
     pageSwitch('get-chatbox');
     getChatboxs();
   };
-  /* 更換頁面 -> 過往紀錄 */
+  /* 更換頁面 -> 已封存 */
   if ("get-auths-hide"._()) "get-auths-hide"._().onclick = function(){
     pageSwitch('get-auths-hide');
+
+    const elmUserList = document.getElementById('user-list');
+    /* 插入用戶列表 */
+    user_block
+    .sort((a, b) => b.update - a.update)
+    .forEach((user) => {
+      const elmName       = document.createElement('strong');
+      elmName.innerText   = String(user.name);
+      const elmUserRow    = document.createElement('li');
+      elmUserRow.appendChild(elmName);
+      elmUserRow.onclick = function(){
+        if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
+        /* 插入新內容 */
+        // getCheckboxContent(user);
+      };
+      elmUserList.appendChild(elmUserRow);
+    });
+  };
+  /* 更換頁面 -> 已封鎖 */
+  if ("get-auths-block"._()) "get-auths-block"._().onclick = function(){
+    pageSwitch('get-auths-block');
+
+    const elmUserList = document.getElementById('user-list');
+    /* 插入用戶列表 */
+    user_block
+    .sort((a, b) => b.update - a.update)
+    .forEach((user) => {
+      const elmName       = document.createElement('strong');
+      elmName.innerText   = String(user.name);
+      const elmUserRow    = document.createElement('li');
+      elmUserRow.appendChild(elmName);
+      elmUserRow.onclick = function(){
+        if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
+        /* 插入新內容 */
+        getCheckboxContent(user);
+      };
+      elmUserList.appendChild(elmUserRow);
+    });
   };
   /* 送出訊息 */
   if ("chat-act"._()) "chat-act"._().onclick = function(){
@@ -115,12 +154,12 @@ String.prototype._all = function(){
     // document.getElementById('page-title').innerText = "過往紀錄";
     document.getElementById('user-list').innerHTML  = null;
     
-    ["get-auths", "get-chatbox", "get-auths-hide"].forEach(e => {
+    ["get-auths", "get-chatbox", "get-auths-hide", "get-auths-block"].forEach(e => {
       if (e === page) e._().classList.add('selected');
       else e._().classList.remove('selected');
     });
   
-    if (page === 'get-chatbox') "user-list"._().setAttribute('df', 'empty inbox');
+    if (page === 'get-chatbox' || page === 'get-auths-hide') "user-list"._().setAttribute('df', 'empty inbox');
     else "user-list"._().setAttribute('df', 'empty auth');
   
     closeChatbox();
@@ -179,6 +218,7 @@ function authLogin(email, passwd, completion){
       if (!snapshot) return error('用戶不存在');
       auth_user.email = snapshot.val().email;
       auth_user.name  = snapshot.val().name;
+      auth_user.head  = snapshot.val().head;
       /* 讀取聊天列表 */
       getChatboxs();
     })
@@ -211,33 +251,30 @@ function getAuths(){
         if (String(uid) === String(auth_user.uid)) return;
         let obj = snapshot.val()[uid];
         obj.uid = uid;
+        /* 已封鎖 */
+        if (user_block.filter(a => a.uid === obj.uid).length) return;
         ary.push(obj);
       });
       return ary;
     }());
     /* 設定空白提示 */
-    elmUserList.setAttribute('df', `user-list ${snapshot.exists() ? "" : "empty"}`);
+    elmUserList.setAttribute('df', `${list.length ? "" : "empty inbox"}`);
     /* 插入用戶列表 */
     list.sort((a, b) => b.update - a.update).forEach((user) => {
-      const elmName       = document.createElement('strong');
-      elmName.innerText   = String(user.name);
-      const elmDate       = document.createElement('em');
-      elmDate.innerText   = `${transTimestampToStr(Number(user.login))}登入`;
-      const elmEmail      = document.createElement('p');
-      elmEmail.innerText  = hideUserEmail(user.email);
-      const elmUserRow    = document.createElement('li');
-      elmUserRow.appendChild(elmName);
-      elmUserRow.appendChild(elmDate);
-      elmUserRow.appendChild(elmEmail);
-      elmUserRow.onclick = function(){
-        if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
-        /* 插入新內容 */
-        getCheckboxContent({
-          name: user.name, 
-          uid : user.uid
-        });
-      };
-      elmUserList.appendChild(elmUserRow);
+      elmUserList.appendChild(
+        _('li', {
+          onclick: function(){
+            if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
+            /* 插入新內容 */
+            getCheckboxContent(user);
+          }
+        }, [
+          _('img', { src: `./image/Userpics/SVG/Square/${user.head}` }),
+          _('strong', { innerText: String(user.name) }),
+          _('em', { innerText: `${transTimestampToStr(Number(user.login))}登入` }),
+          _('p', { innerText: hideUserEmail(user.email) })
+        ])
+      );
     });
   }).catch((error) => {
     console.error(error);
@@ -247,43 +284,42 @@ function getAuths(){
 /* 取得聊天室列表 */
 function getChatboxs(){
   if (!auth_user) return error('請先登入');
-  get(child(dbRef, `chatbox/${auth_user.uid}`)).then((snapshot) => {
+  get(child(dbRef, `chatbox/${auth_user.uid}`))
+  .then((snapshot) => {
     if (!snapshot.exists()) return;
-    const elmUserList = document.getElementById('user-list');
-    const checkbox = (function(){
+    user_block = [];
+    const list = (function(){
       let ary = [];
       Object.keys(snapshot.val()).forEach((uid) => {
         let obj = snapshot.val()[uid];
         obj.uid = uid;
+        /* 已封鎖 */
+        if (Number(obj.hide) === 1) return user_block.push(obj);
         ary.push(obj);
       });
       return ary;
     }());
     /* 設定空白提示 */
-    elmUserList.setAttribute('df', `user-list ${snapshot.exists() ? "" : "empty"}`);
+    "user-list"._().setAttribute('df', `${list.length ? "" : "empty inbox"}`);
     /* 插入聊天列表 */
-    checkbox.sort((a, b) => b.update - a.update).forEach((user) => {
-      const elmName     = document.createElement('strong');
-      elmName.innerText = String(user.name);
-      const elmDate     = document.createElement('em');
-      elmDate.innerText = transTimestampToStr(Number(user.update));
-      const elmLast     = document.createElement('p');
-      elmLast.innerText = String(user.last);
-      const elmUserRow  = document.createElement('li');
-      elmUserRow.appendChild(elmName);
-      elmUserRow.appendChild(elmDate);
-      elmUserRow.appendChild(elmLast);
-      elmUserRow.onclick = function(){
-        if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
-        /* 插入新內容 */
-        getCheckboxContent({
-          name: user.name, 
-          uid : user.uid
-        });
-      };
-      elmUserList.appendChild(elmUserRow);
+    list.sort((a, b) => b.update - a.update).forEach((user) => {
+      "user-list"._().appendChild(
+        _('li', {
+          onclick: function(){
+            if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
+            /* 插入新內容 */
+            getCheckboxContent(user);
+          }
+        }, [
+          _('img', { src: `./image/Userpics/SVG/Square/${user.head}` }),
+          _('strong', { innerText: String(user.name) }),
+          _('em', { innerText: transTimestampToStr(Number(user.update)) }),
+          _('p', { innerText: user.last })
+        ])
+      );
     });
-  }).catch((error) => {
+  })
+  .catch((error) => {
     console.error(error);
   });
 };
@@ -293,6 +329,7 @@ function getCheckboxContent(user){
   /* 標註當前user */
   chatbox_user = user;
   "main-view"._().setAttribute('uid', user.uid);
+  "chatbox-head"._().src = `./image/Userpics/SVG/Square/${user.head}`;
   document.getElementById('chatbox-title').parentElement.classList.add('show');
   document.getElementById('chatbox-title').innerText = user.name;
   chatboxBtnsOnClick();
@@ -311,6 +348,7 @@ function getCheckboxContent(user){
       const isOwner = Boolean(String(val.from) === String(auth_user.uid));
       /* 創建元件 */
       let head = document.createElement('img');
+      head.src = `./image/Userpics/SVG/Square/${isOwner ? auth_user.head : chatbox_user.head}`;
       let date = (function(){
         let elm = document.createElement('em');
         elm.innerHTML = `${transTimestampToStr(timestamp)}`;
@@ -340,14 +378,13 @@ function getCheckboxContent(user){
 function postChat(str){
   const db  = getDatabase();
   const now = Math.floor(Date.now() / 1000);
-  const chatbox_updates = {};
-  const chat_updates    = {};
   if (!str.replace(/ /g, '').length) return;
   /* 個人收件匣紀錄 */
   set(ref(db, `chatbox/${auth_user.uid}/${chatbox_user.uid}`), {
     dismiss : 0,
     last    : str,
     name    : chatbox_user.name,
+    head    : chatbox_user.head,
     unread  : 1,
     update  : now
   });
@@ -366,6 +403,7 @@ function postChat(str){
     dismiss : 0,
     last    : str,
     name    : auth_user.name,
+    head    : auth_user.head,
     unread  : 1,
     update  : now
   });
@@ -381,9 +419,6 @@ function postChat(str){
 };
 /* 聊天框按鈕 */
 function chatboxBtnsOnClick(){
-  if (document.getElementById('btn-chatbox-pin')) document.getElementById('btn-chatbox-pin').onclick = function(){
-    
-  };
   if (document.getElementById('btn-chatbox-user')) document.getElementById('btn-chatbox-user').onclick = function(){
     
   };
@@ -394,6 +429,7 @@ function chatboxBtnsOnClick(){
     closeChatbox()
   };
 };
+
 function closeChatbox(){
   if (chat_listener) chat_listener();
   chat_listener = null;
@@ -427,4 +463,58 @@ function hideUserEmail(email) {
   };
   str += email[12 - 1];
   return `${str}${email.slice(12, email.length)}`;
+};
+
+function _(elm, attrs, children) {
+	var dom = document.createElement(elm);
+	if (attrs) {
+		Object.keys(attrs).forEach(attr => {
+			if (attr === "name")        return dom.setAttribute('name', attrs.name);
+			if (attr === "value")       return dom.value = attrs.value;
+			if (attr === "id")          return dom.id = attrs.id;
+			if (attr === "class")       return dom.className = attrs.class;
+			if (attr === "innerText")   return dom.innerText = attrs.innerText;
+			if (attr === "innerHTML")   return dom.innerHTML = attrs.innerHTML;
+			if (attr === "textContent") return dom.textContent = attrs.textContent;
+			if (attr === "onscroll")    return dom.onscroll = attrs.onscroll;
+			if (attr === "onload")      return dom.onload = attrs.onload;
+			if (attr === "onready")     return dom.onreadystatechange = attrs.onready;
+			if (attr === "onclick")     return dom.onclick = attrs.onclick;
+			if (attr === "onkeyup")     return dom.onkeyup = attrs.onkeyup;
+			if (attr === "onchange")    return dom.onchange = attrs.onchange;
+
+			if (attr === "onchange")    return dom.onchange = attrs.onchange;
+			if (attr === "ondragenter") return dom.ondragenter = attrs.ondragenter;
+			if (attr === "ondragover")  return dom.ondragover = attrs.ondragover;
+			if (attr === "ondragleave") return dom.ondragleave = attrs.ondragleave;
+			if (attr === "ondrop")      return dom.ondrop = attrs.ondrop;
+
+			if (attr === "onkeydown")   return dom.onkeydown = attrs.onkeydown;
+			if (attr === "onkeypress")  return dom.onkeypress = attrs.onkeypress;
+			if (attr === "oninput")     return dom.oninput = attrs.oninput;
+			if (attr === "onfocus")     return dom.onfocus = attrs.onfocus;
+			if (attr === "onblur")      return dom.onblur = attrs.onblur;
+
+			if (attr === "href")        return dom.href = attrs.href;
+			if (attr === "alt")         return dom.alt = attrs.alt;
+			if (attr === "src")         return dom.src = attrs.src;
+			if (attr === "file")        return dom.file = attrs.file;
+			if (attr === "placeholder") return dom.placeholder = attrs.placeholder;
+			if (attr === "style")       return Object.keys(attrs.style).forEach($1 => dom.style[$1] = attrs.style[$1]);
+			if (attr === "bgcolor")     return dom.style["background-color"] = attrs.bgcolor;
+			if (attr === "set")         return Object.keys(attrs.set).forEach($1 => dom.setAttribute($1, attrs.set[$1]));
+		
+			if (attr === "checked")     return dom.checked = attrs.checked;
+			if (attr === "selected")    return dom.selected = attrs.selected;
+			dom.setAttribute(attr, attrs[attr]);
+		})
+	};
+	if (children != null) {
+		if (children.length > 0) children.forEach(child => {
+			if (child == null) return;
+			if (typeof (child) == "object") return dom.appendChild(child);
+			dom.innerHTML += child;
+		});
+	};
+	return dom;
 };

@@ -17,8 +17,9 @@
 
 ### 引用
 
-- [firebasejs 9.8.1](https://firebase.google.com/docs/web/setup)
-- [fontawesome 5.1](https://fontawesome.com)
+- [Firebase JS 9.8.1](https://firebase.google.com/docs/web/setup)
+- [Font Awesome 5.1](https://fontawesome.com)
+- [Free Userpics Pack](https://userpics.craftwork.design)
 
 ### 畫面
 

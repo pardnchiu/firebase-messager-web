@@ -31,7 +31,7 @@
   }
   &[uid=""]{
     > section[df=list] {
-      @media screen and (max-width: 639px) {
+      @media screen and (max-width: 767px) {
         display: block;
         left: 0;
       }
@@ -115,7 +115,7 @@
     @media screen and (max-width: 1279px) {
       width: 240px;
     }
-    @media screen and (max-width: 639px) {
+    @media screen and (max-width: 767px) {
       display: none;
       left: -100%;
       width: 70%;
@@ -192,22 +192,40 @@
         cursor: pointer;
         &:nth-child(1) {
           margin-top: 0;
-          padding-top: 0.5rem;
           border-top: none;
         }
         &.selected {
           background-color: #0000001e;
         }
+        > img {
+          position: absolute;
+          top: 50%;
+          left: 1rem;
+          transform: translateY(-50%);
+          width: 3rem;
+          height: 3rem;
+          object-fit: cover;
+          z-index: 1;
+          border-radius: 0.75rem;
+          -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.05);
+          -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 0 4px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
         > strong {
           position: relative;
           display: block;
-          padding: 0 1rem;
-          font-size: 1.125rem;
+          padding-left: 4.5rem;
+          padding-right: 0.5rem;
+          line-height: 1.5rem;
+          max-height: 1.5rem;
+          font-size: 0.875rem;
+          overflow: hidden;
         }
         > em {
           position: relative;
           display: block;
-          padding: 0 1rem;
+          padding-left: 4.5rem;
+          padding-right: 0.5rem;
           font-size: 0.75rem;
           font-style: normal;
           overflow: hidden;
@@ -215,9 +233,10 @@
         > p {
           position: relative;
           display: block;
+          padding-left: 4.5rem;
+          padding-right: 0.5rem;
           line-height: 1.5rem;
-          max-height: 3rem;
-          padding: 0 1rem;
+          max-height: 1.5rem;
           font-size: 0.875rem;
           font-style: normal;
           overflow: hidden;
@@ -241,7 +260,7 @@
       left: 240px;
       width: calc(100% - 240px);
     }
-    @media screen and (max-width: 639px) {
+    @media screen and (max-width: 767px) {
       left: 0;
       width: 100%;
     }
@@ -263,23 +282,52 @@
       }
       @media screen and (max-width: 479px) {
         height: initial;
+        text-align: center;
+      }
+      > img {
+        position: absolute;
+        display: block;
+        top: 1rem;
+        left: 1rem;
+        width: 2rem;
+        height: 2rem;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.05);
+        -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.05);
+        @media screen and (max-width: 479px) {
+          position: relative;
+          display: inline-block;
+          vertical-align: top;
+          top: unset;
+          left: unset;
+          margin-top: 0.5rem;
+        }
       }
       > h6 {
         position: absolute;
         display: block;
         top: 2rem;
-        left: 1rem;
-        max-width: calc(100% - 14rem);
+        left: 4rem;
+        max-width: calc(100% - 20rem);
         line-height: 1.5rem;
-        max-height: 4rem;
+        max-height: 3rem;
         transform: translateY(-50%);
-        font-size: 1.125rem;
+        font-size: 1rem;
+        overflow: hidden;
+        @media screen and (max-width: 1023px) {
+          max-width: calc(100% - 5rem);
+        }
         @media screen and (max-width: 479px) {
           position: relative;
+          display: inline-block;
+          vertical-align: top;
           top: unset;
           left: unset;
-          padding: 0.75rem 1rem;
-          width: 100%;
+          padding: 0.75rem 0.5rem;
+          width: initial;
+          max-width: calc(100% - 0.25rem);
           max-width: none;
           transform: unset;
           text-align: center;
@@ -287,13 +335,86 @@
       }
       > ul {
         position: absolute;
+        display: block;
         top: 0;
         right: 0;
-        bottom: 0;
         padding-top: 1rem;
         width: initial;
         height: 100%;
         font-size: 0;
+        > li {
+          position: relative;
+          display: inline-block;
+          vertical-align: top;
+          margin-right: 1rem;
+          width: initial; 
+          height: 100%;
+          font-size: 0;
+          cursor: pointer;
+          &:nth-child(1) {
+            display: none;
+          }
+          @media screen and (min-width: 1024px) {
+            &:hover {
+              > p {
+                position: absolute;
+                display: block;
+                right: 0;
+                top: 3rem;
+                width: 4.5rem;
+                text-align: center;
+                background-color: #222233;
+                color: #fff;
+                border-radius: 0.5rem;
+              }
+            }
+          }
+          > i {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            width: 2rem;
+            line-height: 2rem;
+            font-size: 1rem;
+            background-color: #0000001e;
+            text-align: center;
+            border-radius: 0.5rem;
+          }
+          > p {
+            position: relative;
+            display: none;
+            vertical-align: top;
+            margin-left: 0.5rem;
+            line-height: 2rem;
+            font-size: 0.875rem;
+          }
+        }
+        @media screen and (max-width: 1023px) and (min-width: 480px) {
+          display: block;
+          padding-left: 1rem;
+          padding-bottom: 1rem;
+          height: 4rem;
+          text-align: right;
+          overflow: hidden;
+          &.show {
+            height: initial;
+            background-color: #fff;
+            -moz-box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+            -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+          > li {
+            display: block;
+            margin-top: 1rem;
+            &:nth-child(1) {
+              display: block;
+              margin-top: 0;
+            }
+            > p {
+              display: inline-block;
+            }
+          }
+        }
         @media screen and (max-width: 479px) {
           position: relative;
           top: unset;
@@ -304,24 +425,6 @@
           padding-bottom: 0.75rem;
           width: 100%;
           text-align: center;
-        }
-        > li {
-          position: relative;
-          display: inline-block;
-          vertical-align: top;
-          margin-right: 1rem;
-          width: initial; 
-          height: 100%;
-          > i {
-            position: relative;
-            width: 2rem;
-            line-height: 2rem;
-            font-size: 1rem;
-            background-color: #0000001e;
-            text-align: center;
-            border-radius: 0.5rem;
-            cursor: pointer;
-          }
         }
       }
     }

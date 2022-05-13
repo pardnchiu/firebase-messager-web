@@ -1,3 +1,21 @@
+<!--
+  Name: 
+    Firebase Messager (Web ver.)
+
+  Authors: 
+    Pardn Ltd 帕登國際有限公司 <mail@pardn.ltd>
+    Pardn Chiu 邱敬幃 <chiuchingwei@icloud.com>
+
+  Copyright: 
+    pardn.ltd 帕登國際有限公司
+
+  Licence: 
+    本授權條款允許使用者重製、散布、傳輸以及修改著作，但不得為商業目的之使用。
+    使用時必須按照著作人指定的方式表彰其姓名。
+
+  Licence URI: 
+    https://github.com/pardnchiu/firebase-messager-web/blob/main/LICENSE
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,20 +56,24 @@
     </div>
   </div>
   <div df="body">
-    <h6 id="page-title">Firebase Message</h6>
+    <h6 id="page-title">Firebase Messager</h6>
     <div id="main-view" uid="">
       <nav>
         <ul>
-          <li id="get-chatbox" class="selected">
-            <i class="fas fa-comments"></i>
-            <p>收件匣</p>
-          </li>
           <li id="get-auths">
             <i class="fas fa-user-friends"></i>
             <p><b>註冊</b>用戶</p>
           </li>
+          <li id="get-chatbox" class="selected">
+            <i class="fas fa-comments"></i>
+            <p>收件匣</p>
+          </li>
           <li id="get-auths-hide">
-            <i class="fas fa-clock"></i>
+            <i class="fas fa-archive"></i>
+            <p><b>已</b>封存</p>
+          </li>
+          <li id="get-auths-block">
+            <i class="fas fa-comment-slash"></i>
             <p><b>已</b>封鎖</p>
           </li>
         </ul>
@@ -66,19 +88,37 @@
       </section>
       <section df="body">
         <nav>
+          <img id="chatbox-head" src="" alt="">
           <h6 id="chatbox-title"></h6>
           <ul>
-            <li id="btn-chatbox-pin">
-              <i class="fas fa-thumbtack"></i>
+            <li id="btn-chatbox-list">
+              <i class="fas fa-ellipsis-h"></i>
+              <script>
+                document.getElementById('btn-chatbox-list').parentElement.onclick = function(){
+                  const isShow = this.classList.contains('show');
+                  isShow ? this.classList.remove('show') : this.classList.add('show');
+                };
+              </script>
             </li>
             <li id="btn-chatbox-user">
               <i class=" fas fa-user-alt"></i>
+              <p>用戶資料</p>
+            </li>
+            <li id="btn-chatbox-block">
+              <i class="fas fa-comment-slash"></i>
+              <p>封鎖用戶</p>
+            </li>
+            <li id="btn-chatbox-hide">
+              <i class="fas fa-archive"></i>
+              <p>封存對話</p>
             </li>
             <li id="btn-chatbox-delete">
               <i class="fas fa-trash-alt"></i>
+              <p>刪除對話</p>
             </li>
             <li id="btn-chatbox-close">
               <i class="fas fa-times-circle"></i>
+              <p>關閉對話</p>
             </li>
           </ul>
         </nav>
