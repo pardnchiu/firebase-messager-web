@@ -22,10 +22,11 @@
     width: calc(100% - 2rem);
   }
   @media screen and (max-width: 479px) {
+    top: 0;
     left: 0;
     bottom: 0;
     width: 100%;
-    height: calc(100% - 4.5rem);
+    height: 100%;
     border-radius: 0;
   }
   &[uid=""]{
@@ -52,25 +53,49 @@
       padding: 0 0.5rem;
       width: 100%;
       font-size: 0;
+      @media screen and (max-width: 479px) {
+        text-align: center;
+      }
       > li {
         position: relative;
         display: inline-block;
         vertical-align: top;
         margin: 0.75rem 0.5rem;
-        padding: 0 0.75rem;
         width: initial;
-        line-height: 2.5rem;
-        font-size: 0.875rem;
-        font-weight: 500;
         border-radius: 0.5rem;
         background-color: #0000000a;
+        font-size: 0;
         cursor: pointer;
         > i {
-          margin-right: 0.25rem;
+          position: relative;
+          display: inline-block;
+          vertical-align: top;
+          margin-left: 0.75rem;
+          line-height: 2.5rem;
+          font-size: 0.875rem;
+        }
+        > p {
+          position: relative;
+          display: inline-block;
+          vertical-align: top;
+          padding-left: 0.5rem;
+          padding-right: 0.75rem;
+          line-height: 2.5rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          > b {
+            font-weight: 500;
+          }
+          @media screen and (max-width: 479px) {
+            > b {
+              display: none;
+            }
+          }
         }
         &.selected {
           background-color: steelblue;
-          color: #fff;
+          > p,
+          > p > b,
           > i {
             color: #fff;
           }
@@ -236,16 +261,28 @@
       &.show {
         display: block;
       }
+      @media screen and (max-width: 479px) {
+        height: initial;
+      }
       > h6 {
         position: absolute;
         display: block;
-        top: 0;
+        top: 2rem;
         left: 1rem;
-        bottom: 0;
-        line-height: 4rem;
-        font-size: 1.25rem;
-        @media screen and (max-width: 1279px) {
-          display: none;
+        max-width: calc(100% - 14rem);
+        line-height: 1.5rem;
+        max-height: 4rem;
+        transform: translateY(-50%);
+        font-size: 1.125rem;
+        @media screen and (max-width: 479px) {
+          position: relative;
+          top: unset;
+          left: unset;
+          padding: 0.75rem 1rem;
+          width: 100%;
+          max-width: none;
+          transform: unset;
+          text-align: center;
         }
       }
       > ul {
@@ -253,19 +290,30 @@
         top: 0;
         right: 0;
         bottom: 0;
+        padding-top: 1rem;
         width: initial;
         height: 100%;
         font-size: 0;
+        @media screen and (max-width: 479px) {
+          position: relative;
+          top: unset;
+          right: unset;
+          bottom: unset;
+          padding-top: 0;
+          padding-left: 1rem;
+          padding-bottom: 0.75rem;
+          width: 100%;
+          text-align: center;
+        }
         > li {
           position: relative;
           display: inline-block;
           vertical-align: top;
           margin-right: 1rem;
-          width: initial;
+          width: initial; 
           height: 100%;
           > i {
             position: relative;
-            margin-top: 1rem;
             width: 2rem;
             line-height: 2rem;
             font-size: 1rem;
@@ -287,6 +335,9 @@
       height: initial;
       max-height: 100%;
       overflow: scroll;
+      @media screen and (max-width: 479px) {
+        padding-top: calc(6.75rem + 1.5rem);
+      }
       > li {
         position: relative;
         display: block;

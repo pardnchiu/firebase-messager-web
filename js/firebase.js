@@ -14,7 +14,6 @@ const firebaseConfig = {
   appId             : "1:913598491540:web:bf2e878095214a7284fd81",
   measurementId     : "G-GRY5WSZQ19"
 };
-
 const app       = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth      = getAuth(app);
@@ -24,7 +23,118 @@ const dbRef     = ref(getDatabase(app));
 let auth_user     = null;
 let chatbox_user  = null;
 let chat_listener = null;
+String.prototype._ = function(){
+  var str   = String(this);
+  var isId  = !/(\.|\=|\[|\])/g.test(str);
+  var elm   = isId ? document.getElementById(str) : document.querySelector(str);
+  if (elm) return elm;
+};
+String.prototype._all = function(){
+  var str = String(this);
+  var elm = document.querySelectorAll(str);
+  if (elm) return elm;
+};
 
+(function onclick(){
+  /* 切換登入 */
+  if ("login-show"._()) "login-show"._().onclick = function(){
+    this.parentElement.setAttribute('df', 'login')
+  };
+  /* 切換註冊 */
+  if ("signup-show"._()) "signup-show"._().onclick = function(){
+    this.parentElement.setAttribute('df', 'signup')
+  };
+  /* 登入 */
+  if ("login-act"._()) "login-act"._().onclick = function(){
+    const email   = document.querySelector('input[type="email"]').value; //"chiuchingwei@icloud.com"//
+    const passwd  = document.querySelector('input[type="password"]').value; //"Rroc24924502"//
+    authLogin(email, passwd);
+  };
+  /* 註冊 */
+  if ("signup-act"._()) "signup-act"._().onclick = function(){
+    const name    = String(document.querySelector('input[type="text"]').value);
+    const email   = String(document.querySelector('input[type="email"]').value);
+    const passwd  = String(document.querySelector('input[type="password"]').value);
+    const now     = Math.floor(Date.now() / 1000);
+    createUserWithEmailAndPassword(auth, email, passwd)
+    .then((userCredential) => {
+      auth_user = userCredential.user;
+      signup(auth_user.uid, name, email, passwd);
+      function signup(uid, name, email, passwd){
+        const db = getDatabase();
+        set(ref(db, 'auth/' + uid), {
+          name    : name,
+          email   : email,
+          // passwd  : passwd,
+          login   : now,
+          signup  : now,
+          dismiss : 0
+        });
+        document.getElementById('unauth-view').classList.add('done');
+        let timer = setTimeout(() => {
+          clearTimeout(timer);
+          document.getElementById('unauth-view').remove();
+        }, 500);
+      };
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      error(errorMessage);
+    });
+  };
+  /* 更換頁面 -> 平台用戶 */
+  if ("get-auths"._()) "get-auths"._().onclick = function(){
+    pageSwitch('get-auths');
+    getAuths();
+  };
+  /* 更換頁面 -> 所有訊息 */
+  if ("get-chatbox"._()) "get-chatbox"._().onclick = function(){
+    pageSwitch('get-chatbox');
+    getChatboxs();
+  };
+  /* 更換頁面 -> 過往紀錄 */
+  if ("get-auths-hide"._()) "get-auths-hide"._().onclick = function(){
+    pageSwitch('get-auths-hide');
+  };
+  /* 送出訊息 */
+  if ("chat-act"._()) "chat-act"._().onclick = function(){
+    if (!auth_user)     return error('請先登入');
+    if (!chatbox_user)  return error('未選擇用戶');
+    const str = String("chat-input"._().value);
+    "chat-input"._().value = "";
+    postChat(str);
+  };
+  /**
+   * 
+   * 函式
+   * 
+   */
+  /* 更換頁面 */
+  function pageSwitch(page){
+    // document.getElementById('page-title').innerText = "過往紀錄";
+    document.getElementById('user-list').innerHTML  = null;
+    
+    ["get-auths", "get-chatbox", "get-auths-hide"].forEach(e => {
+      if (e === page) e._().classList.add('selected');
+      else e._().classList.remove('selected');
+    });
+  
+    if (page === 'get-chatbox') "user-list"._().setAttribute('df', 'empty inbox');
+    else "user-list"._().setAttribute('df', 'empty auth');
+  
+    closeChatbox();
+  };
+}());
+
+if (login_data.email && login_data.passwd){
+  authLogin(login_data.email, login_data.passwd);
+};
+/**
+ * 
+ * 函式
+ * 
+ */
 function error(str){
   let elm = document.createElement('p');
   elm.id        = "page-hint";
@@ -39,20 +149,6 @@ function error(str){
     }, 500);
   }, 1000);
 };
-
-String.prototype._ = function(){
-  var str   = String(this);
-  var isId  = !/(\.|\=|\[|\])/g.test(str);
-  var elm   = isId ? document.getElementById(str) : document.querySelector(str);
-  if (elm) return elm;
-};
-
-String.prototype._all = function(){
-  var str = String(this);
-  var elm = document.querySelectorAll(str);
-  if (elm) return elm;
-};
-
 /* 登入會員 */
 function authLogin(email, passwd, completion){
   const now   = Math.floor(Date.now() / 1000);
@@ -91,10 +187,9 @@ function authLogin(email, passwd, completion){
     console.log(error.message);
   });
 };
-
 /* 讀取用戶資料 */
 function getUserData(uid, completion){
-  get(child(dbRef, `auth/${auth_user.uid}`))
+  get(child(dbRef, `auth/${uid}`))
   .then((snapshot) => {
     if (!snapshot.exists()) return (
       completion(null)
@@ -105,7 +200,6 @@ function getUserData(uid, completion){
     console.error(error);
   });
 };
-
 /* 取得註冊用戶 */
 function getAuths(){
   if (!auth_user) return error('請先登入');
@@ -150,7 +244,6 @@ function getAuths(){
   });
 
 };
-
 /* 取得聊天室列表 */
 function getChatboxs(){
   if (!auth_user) return error('請先登入');
@@ -194,7 +287,6 @@ function getChatboxs(){
     console.error(error);
   });
 };
-
 /* 讀取聊天內容 */
 function getCheckboxContent(user){
   if (!auth_user) return error('請先登入');
@@ -244,7 +336,6 @@ function getCheckboxContent(user){
     "chatbox-body"._().scrollTo('top', 'chatbox-body'._().scrollHeight)
   });
 };
-
 /* 傳送聊天內容 */
 function postChat(str){
   const db  = getDatabase();
@@ -288,125 +379,31 @@ function postChat(str){
     read    : 0
   });
 };
-
 /* 聊天框按鈕 */
 function chatboxBtnsOnClick(){
   if (document.getElementById('btn-chatbox-pin')) document.getElementById('btn-chatbox-pin').onclick = function(){
     
-  }
+  };
   if (document.getElementById('btn-chatbox-user')) document.getElementById('btn-chatbox-user').onclick = function(){
     
-  }
+  };
   if (document.getElementById('btn-chatbox-delete')) document.getElementById('btn-chatbox-delete').onclick = function(){
     
-  }
-  if (document.getElementById('btn-chatbox-report')) document.getElementById('btn-chatbox-report').onclick = function(){
-
-  }
+  };
   if (document.getElementById('btn-chatbox-close')) document.getElementById('btn-chatbox-close').onclick = function(){
-    if (chat_listener) chat_listener();
-    chat_listener     = null;
-    chatbox_user  = null;
-    "main-view"._().setAttribute('uid', '');
-    document.getElementById('chatbox-body').innerHTML = null;
-    document.getElementById('chatbox-title').parentElement.classList.remove('show');
-    document.getElementById('chatbox-title').innerText = null;
-  }
+    closeChatbox()
+  };
 };
-
-if (document.getElementById('chat-act')) document.getElementById('chat-act').onclick = function(){
-  if (!auth_user)                             return error('請先登入');
-  if (!chatbox_user)                          return error('未選擇用戶');
-  if (!document.getElementById('chat-input')) return error('無輸入框');
-  const str = String(document.getElementById('chat-input').value);
-  document.getElementById('chat-input').value = "";
-  postChat(str);
+function closeChatbox(){
+  if (chat_listener) chat_listener();
+  chat_listener = null;
+  chatbox_user  = null;
+  "main-view"._().setAttribute('uid', '');
+  document.getElementById('chatbox-body').innerHTML = null;
+  document.getElementById('chatbox-title').parentElement.classList.remove('show');
+  document.getElementById('chatbox-title').innerText = null;
 };
-
-if (document.getElementById('get-auths')) document.getElementById('get-auths').onclick = function(){
-  document.getElementById('page-title').innerText = "平台用戶";
-  document.getElementById('get-auths').classList.add('selected');
-  document.getElementById('get-chatbox').classList.remove('selected');
-  document.getElementById('get-history').classList.remove('selected');
-  document.getElementById('user-list').setAttribute('df', 'empty auth');
-  document.getElementById('user-list').innerHTML = null;
-  getAuths();
-};
-
-if (document.getElementById('get-chatbox')) document.getElementById('get-chatbox').onclick = function(){
-  document.getElementById('page-title').innerText = "所有訊息";
-  document.getElementById('get-auths').classList.remove('selected');
-  document.getElementById('get-chatbox').classList.add('selected');
-  document.getElementById('get-history').classList.remove('selected');
-  document.getElementById('user-list').setAttribute('df', 'empty inbox');
-  document.getElementById('user-list').innerHTML = null;
-  getChatboxs();
-};
-
-if (document.getElementById('get-history')) document.getElementById('get-history').onclick = function(){
-  document.getElementById('page-title').innerText = "過往紀錄";
-  document.getElementById('get-auths').classList.remove('selected');
-  document.getElementById('get-chatbox').classList.remove('selected');
-  document.getElementById('get-history').classList.add('selected');
-  document.getElementById('user-list').setAttribute('df', 'empty inbox');
-  document.getElementById('user-list').innerHTML = null;
-};
-
-/* 登入 */
-if (document.getElementById('login-act')) document.getElementById('login-act').onclick = function(){
-  const email   = document.querySelector('input[type="email"]').value; //"chiuchingwei@icloud.com"//
-  const passwd  = document.querySelector('input[type="password"]').value; //"Rroc24924502"//
-  authLogin(email, passwd);
-};
-
-/* 註冊 */
-if (document.getElementById('signup-act')) document.getElementById('signup-act').onclick = function(){
-  const name    = String(document.querySelector('input[type="text"]').value);
-  const email   = String(document.querySelector('input[type="email"]').value);
-  const passwd  = String(document.querySelector('input[type="password"]').value);
-  const now     = Math.floor(Date.now() / 1000);
-  createUserWithEmailAndPassword(auth, email, passwd)
-  .then((userCredential) => {
-    auth_user = userCredential.user;
-    signup(auth_user.uid, name, email, passwd);
-    function signup(uid, name, email, passwd){
-      const db = getDatabase();
-      set(ref(db, 'auth/' + uid), {
-        name    : name,
-        email   : email,
-        // passwd  : passwd,
-        login   : now,
-        signup  : now,
-        dismiss : 0
-      });
-      document.getElementById('unauth-view').classList.add('done');
-      let timer = setTimeout(() => {
-        clearTimeout(timer);
-        document.getElementById('unauth-view').remove();
-      }, 500);
-    };
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    error(errorMessage);
-  });
-}
-
-/* 切換登入 */
-if (document.getElementById('login-show')) document.getElementById('login-show').onclick = function(){
-  this.parentElement.setAttribute('df', 'login')
-};
-
-/* 切換註冊 */
-if (document.getElementById('signup-show')) document.getElementById('signup-show').onclick = function(){
-  this.parentElement.setAttribute('df', 'signup')
-};
-
-if (login_data.email && login_data.passwd){
-  authLogin(login_data.email, login_data.passwd);
-};
-
+/* 轉換時間戳 */
 function transTimestampToStr(timestamp){
   let now     = Math.floor(Date.now() / 1000);
   let second  = now - Number(timestamp);
@@ -421,7 +418,7 @@ function transTimestampToStr(timestamp){
     default: return `${second}秒前`;
   };
 };
-
+/* 郵件馬賽克 */
 function hideUserEmail(email) {
   let index = email.indexOf('@');
   let str = email[0];
