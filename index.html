@@ -59,10 +59,14 @@
     <h6 id="page-title">Firebase Messager</h6>
     <div id="main-view" uid="">
       <nav>
-        <ul>
+        <ul class="">
+          <li id="get-pages">
+            <i class="fas fa-exchange-alt"></i>
+            <p>更換頁面</p>
+          </li>
           <li id="get-auths">
             <i class="fas fa-user-friends"></i>
-            <p><b>註冊</b>用戶</p>
+            <p>註冊用戶</p>
           </li>
           <li id="get-chatbox" class="selected">
             <i class="fas fa-comments"></i>
@@ -70,11 +74,11 @@
           </li>
           <li id="get-auths-hide">
             <i class="fas fa-archive"></i>
-            <p><b>已</b>封存</p>
+            <p>已封存</p>
           </li>
           <li id="get-auths-block">
             <i class="fas fa-comment-slash"></i>
-            <p><b>已</b>封鎖</p>
+            <p>已封鎖</p>
           </li>
         </ul>
       </nav>
@@ -131,6 +135,13 @@
       </section>
     </div>
     <div id="right-view">
+      <figure>
+        <img id="auth-head" src="" alt="">
+        <figcaption>
+          <strong id="auth-name"></strong>
+          <time id="auth-signup"></time>
+        </figcaption>
+      </figure>
     </div>
   </div>
 </body>

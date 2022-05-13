@@ -84,6 +84,11 @@ String.prototype._all = function(){
       error(errorMessage);
     });
   };
+  if ("get-pages"._()) "get-pages"._().onclick = function(){
+    console.log(this.parentElement.classList)
+    const isShow = Boolean(this.parentElement.classList.contains('show'));
+    isShow ? this.parentElement.classList.remove('show') : this.parentElement.classList.add('show');
+  };
   /* 更換頁面 -> 註冊用戶 */
   if ("get-auths"._()) "get-auths"._().onclick = function(){
     pageSwitch('get-auths');
@@ -219,6 +224,9 @@ function authLogin(email, passwd, completion){
       auth_user.email = snapshot.val().email;
       auth_user.name  = snapshot.val().name;
       auth_user.head  = snapshot.val().head;
+      "auth-head"._().src = `./image/Userpics/SVG/Square/${snapshot.val().head}`;
+      "auth-name"._().innerText = snapshot.val().name;
+      "auth-signup"._().innerText = transTimestampToStr(snapshot.val().signup);
       /* 讀取聊天列表 */
       getChatboxs();
     })
