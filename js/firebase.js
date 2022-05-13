@@ -294,14 +294,13 @@ function _getAuthList(){
 /* 取得聊天室列表 */
 function _getChatbox(isBlock){
   if (!auth_user) return error('請先登入');
-  /* init */
-  "user-list"._().innerHTML = null;
-  user_block = [];
   /* 取得資料 */
   if (chatboxListener) chatboxListener();
   chatboxListener = onValue(ref(db, `chatbox/${auth_user.uid}`), (snapshot) => {
+    /* init */
+    "user-list"._().innerHTML = null;
+    user_block = [];
     if (!snapshot.exists()) return;
-    /* 調整資料 */
     let ary = [];
     Object.keys(snapshot.val()).forEach((uid) => {
       let obj = snapshot.val()[uid];
