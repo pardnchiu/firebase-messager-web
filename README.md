@@ -11,9 +11,7 @@
 - 授權: [MIT License](./LICENSE)
 - 源碼: https://github.com/pardnchiu/firebase-messager-web
 
-### 提醒
-
-- 下載專案使用需停用本機檔案讀取限制，否則無法讀取 firebase.js。
+<br>
 
 ### 引用
 
@@ -22,15 +20,32 @@
 - 頭像: [Free Userpics Pack](https://userpics.craftwork.design)
 - 圖片: [Unsplash]()
 
+<br>
+
 ### 畫面
 
 | 註冊／登入 |
 | --- |
 | ![login](./preview/login.png)
 
-### 導入Firebase
+<br>
 
-懂的可以直接略過
+### 附註
+
+本機測試 CORS 問題
+
+- Safari 
+  ```
+  停用本機檔案讀取限制
+  ```
+- Chrome (Mac)
+  ```
+  open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
+  ```
+
+<br>
+
+### Firebase 導入教學
 
 | 進入專案頁面 |
 | --- |
