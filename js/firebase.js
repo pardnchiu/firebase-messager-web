@@ -19,7 +19,103 @@ const analytics = getAnalytics(app);
 const auth      = getAuth(app);
 const db        = getDatabase(app);
 const dbRef     = ref(getDatabase(app));
-
+const headAry   = [
+  "01.svg",
+  "Afterclap-0.svg",
+  "Afterclap-1.svg",
+  "Afterclap-2.svg",
+  "Afterclap-3.svg",
+  "Afterclap-4.svg",
+  "Afterclap-5.svg",
+  "Afterclap-6.svg",
+  "Afterclap-7.svg",
+  "Afterclap-8.svg",
+  "Afterclap-9.svg",
+  "Cranks-0.svg",
+  "Cranks-1.svg",
+  "Cranks-2.svg",
+  "Delivery boy-0.svg",
+  "Delivery boy-1.svg",
+  "Delivery boy-2.svg",
+  "Delivery boy-3.svg",
+  "Delivery boy-4.svg",
+  "Delivery boy-5.svg",
+  "E-commerce-0.svg",
+  "E-commerce-1.svg",
+  "E-commerce-2.svg",
+  "Funny Bunny-0.svg",
+  "Funny Bunny-1.svg",
+  "Funny Bunny-2.svg",
+  "Funny Bunny-3.svg",
+  "Funny Bunny-4.svg",
+  "Funny Bunny-5.svg",
+  "Funny Bunny-6.svg",
+  "Funny Bunny-7.svg",
+  "Funny Bunny-8.svg",
+  "Guacamole-0.svg",
+  "Guacamole-1.svg",
+  "Guacamole-2.svg",
+  "Guacamole-3.svg",
+  "Juicy-0.svg",
+  "Juicy-1.svg",
+  "No comments 3.svg",
+  "No comments 4.svg",
+  "No comments 5.svg",
+  "No comments 6.svg",
+  "No comments 7.svg",
+  "No comments 8.svg",
+  "No comments 9.svg",
+  "No Comments-0.svg",
+  "No Comments-1.svg",
+  "No Comments-2.svg",
+  "No Comments-3.svg",
+  "No gravity-0.svg",
+  "No gravity-1.svg",
+  "No gravity-2.svg",
+  "No gravity-3.svg",
+  "OSLO-0.svg",
+  "OSLO-1.svg",
+  "OSLO-2.svg",
+  "OSLO-3.svg",
+  "OSLO-4.svg",
+  "OSLO-5.svg",
+  "OSLO-6.svg",
+  "OSLO-7.svg",
+  "OSLO-8.svg",
+  "OSLO-9.svg",
+  "OSLO-10.svg",
+  "OSLO-11.svg",
+  "OSLO-12.svg",
+  "OSLO-13.svg",
+  "OSLO-14.svg",
+  "Teamwork-0.svg",
+  "Teamwork-1.svg",
+  "Teamwork-2.svg",
+  "Teamwork-3.svg",
+  "Teamwork-4.svg",
+  "Teamwork-5.svg",
+  "Teamwork-6.svg",
+  "Teamwork-7.svg",
+  "Teamwork-8.svg",
+  "Upstream-0.svg",
+  "Upstream-1.svg",
+  "Upstream-2.svg",
+  "Upstream-3.svg",
+  "Upstream-4.svg",
+  "Upstream-5.svg",
+  "Upstream-6.svg",
+  "Upstream-7.svg",
+  "Upstream-8.svg",
+  "Upstream-9.svg",
+  "Upstream-10.svg",
+  "Upstream-11.svg",
+  "Upstream-12.svg",
+  "Upstream-13.svg",
+  "Upstream-14.svg",
+  "Upstream-15.svg",
+  "Upstream-16.svg",
+  "Upstream-17.svg"
+];
 let auth_user       = null;
 let chatbox_user    = null;
 let chatboxListener = null;
@@ -128,6 +224,31 @@ String.prototype._all = function(){
     const str = String("chat-input"._().value);
     "chat-input"._().value = "";
     postChat(str);
+  };
+  /* 更換頭像 */
+  if ("btn-head-change"._()) "btn-head-change"._().onclick = function(){
+    const elm = _('div', null, [
+      _('h6', { innerText: "選取頭像" }),
+      _('div', null, 
+        (function(){
+          let ary = [
+          ];
+          headAry.forEach(head => {
+            ary.push(
+              _('img', { 
+                src: `./image/Userpics/SVG/Square/${head}`,
+                onclick: function(){
+                  _updateAuthHead(head);
+                  elm.remove();
+                } 
+              })
+            )
+          });
+          return ary;
+        }())
+      )
+    ]);
+    "right-view"._().appendChild(elm);
   };
   /**
    * 
@@ -353,8 +474,8 @@ function _getChat(user){
       const val     = snapshot.val()[timestamp];
       const isOwner = Boolean(String(val.from) === String(auth_user.uid));
       /* 創建元件 */
-      let head = document.createElement('img');
-      head.src = `./image/Userpics/SVG/Square/${isOwner ? auth_user.head : chatbox_user.head}`;
+      // let head = document.createElement('img');
+      // head.src = `./image/Userpics/SVG/Square/${isOwner ? auth_user.head : chatbox_user.head}`;
       let date = (function(){
         let elm = document.createElement('em');
         elm.innerHTML = `${transTimestampToStr(timestamp)}`;
@@ -368,10 +489,10 @@ function _getChat(user){
       let row     = (function(){
         let elm = document.createElement('li');
         elm.setAttribute('df', isOwner ? 'right' : 'left');
-        if (!isOwner) elm.appendChild(head);
+        // if (!isOwner) elm.appendChild(head);
         if (isOwner) elm.appendChild(date);
         elm.appendChild(content);
-        if (isOwner) elm.appendChild(head);
+        // if (isOwner) elm.appendChild(head);
         if (!isOwner) elm.appendChild(date);
         return elm;
       }());
@@ -432,6 +553,20 @@ function postChat(str){
     read    : 0
   });
 };
+/* 傳送聊天內容 */
+function _updateAuthHead(head){
+  /* 更新資料 */
+  (function(){
+    let authUpdate = {};
+    authUpdate[`auth/${auth_user.uid}/head`] = head;
+    update(ref(db), authUpdate);
+  }());
+  /* 更新介面 */
+  (function(){
+    auth_user.head = head;
+    "auth-head"._().src = `./image/Userpics/SVG/Square/${head}`;
+  }());
+};
 /* 聊天框按鈕 */
 function initChat(isBlock, isExist, isHide){
   isBlock ? "btn-chatbox-user"._().parentElement.classList.add('block') : "btn-chatbox-user"._().parentElement.classList.remove('block')
@@ -458,10 +593,7 @@ function initChat(isBlock, isExist, isHide){
   };
   /* 對話 - 刪除對話 */
   if ("btn-chatbox-delete"._()) {
-    const vw = document.body.clientWidth;
-    if (!isExist)               "btn-chatbox-delete"._().style["display"] = "none";
-    if (vw >= 480 && vw < 1024) "btn-chatbox-delete"._().style["display"] = "block"
-    else                        "btn-chatbox-delete"._().style["display"] = "inline-block";
+    "btn-chatbox-delete"._().style["display"] = isExist && !isHide && !isBlock  ? "inline-block" : "none";
     "btn-chatbox-delete"._().onclick = function(){
       if (!confirm('刪除對話，確認？')) return;
       /* 個人收件匣紀錄 */
@@ -474,13 +606,8 @@ function initChat(isBlock, isExist, isHide){
   }
   /* 對話 - 封存對話 */
   if ("btn-chatbox-hide"._()) {
-    window.onresize = function(){
-      const vw = document.body.clientWidth;
-      if (!isExist)               "btn-chatbox-hide"._().style["display"] = "none";
-      if (vw >= 480 && vw < 1024) "btn-chatbox-hide"._().style["display"] = "block"
-      else                        "btn-chatbox-hide"._().style["display"] = "inline-block";
-    }
-    isHide ? "btn-chatbox-hide"._().classList.add('selected') : "btn-chatbox-hide"._().classList.remove('selected')
+    "btn-chatbox-hide"._().style["display"] = isExist && isHide ? "inline-block" : "none";
+    isHide ? "btn-chatbox-hide"._().classList.add('selected') : "btn-chatbox-hide"._().classList.remove('selected');
     "btn-chatbox-hide"._().onclick = function(){
       /* 個人收件匣紀錄 */
       set(ref(db, `chatbox/${auth_user.uid}/${chatbox_user.uid}/hide`), isHide ? 0 : 1);

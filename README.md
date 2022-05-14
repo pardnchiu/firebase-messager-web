@@ -27,6 +27,18 @@
 | --- |
 | ![login](./preview/login.png)
 
+| 收件匣 |
+| --- |
+| ![page-inbox](./preview/page-inbox.png)
+
+| 已封鎖 |
+| --- |
+| ![page-block](./preview/page-block.png)
+
+| 更換頭像 |
+| --- |
+| ![head-change](./preview/head-change.png)
+
 <br>
 
 ### 附註
