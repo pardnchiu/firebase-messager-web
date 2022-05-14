@@ -100,26 +100,6 @@ String.prototype._all = function(){
     pageSwitch('get-chatbox', this.parentElement);
     _getChatbox(false);
   };
-  /* 更換頁面 -> 已封存 */
-  if ("get-auths-hide"._()) "get-auths-hide"._().onclick = function(){
-    pageSwitch('get-auths-hide', this.parentElement);
-    const elmUserList = document.getElementById('user-list');
-    /* 插入用戶列表 */
-    user_block
-    .sort((a, b) => b.update - a.update)
-    .forEach((user) => {
-      const elmName       = document.createElement('strong');
-      elmName.innerText   = String(user.name);
-      const elmUserRow    = document.createElement('li');
-      elmUserRow.appendChild(elmName);
-      elmUserRow.onclick = function(){
-        if (chatbox_user && String(chatbox_user.uid) === user.uid) return;
-        /* 插入新內容 */
-        // getCheckboxContent(user);
-      };
-      elmUserList.appendChild(elmUserRow);
-    });
-  };
   /* 更換頁面 -> 已封鎖 */
   if ("get-auths-block"._()) "get-auths-block"._().onclick = function(){
     pageSwitch('get-auths-block', this.parentElement);
@@ -161,12 +141,16 @@ String.prototype._all = function(){
     document.getElementById('user-list').innerHTML  = null;
     if (chatboxListener) chatboxListener();
     
-    ["get-auths", "get-chatbox", "get-auths-hide", "get-auths-block"].forEach(e => {
-      if (e === page) e._().classList.add('selected');
-      else e._().classList.remove('selected');
+    ["get-auths", "get-chatbox",  "get-auths-block"].forEach(e => {
+      if (e === page) { 
+        "main-view-title"._().innerText = e._().querySelector('p').innerText;
+        e._().classList.add('selected');
+      } else { 
+        e._().classList.remove('selected');
+      };
     });
   
-    if (page === 'get-chatbox' || page === 'get-auths-hide') "user-list"._().setAttribute('df', 'empty inbox');
+    if (page === 'get-chatbox') "user-list"._().setAttribute('df', 'empty inbox');
     else "user-list"._().setAttribute('df', 'empty auth');
   
     closeChatbox();
@@ -299,6 +283,8 @@ function _getChatbox(isBlock){
   chatboxListener = onValue(ref(db, `chatbox/${auth_user.uid}`), (snapshot) => {
     /* init */
     "user-list"._().innerHTML = null;
+    "user-list"._().setAttribute('df', "empty inbox");
+
     user_block = [];
     if (!snapshot.exists()) return;
     let ary = [];
@@ -311,7 +297,7 @@ function _getChatbox(isBlock){
           break;
         case false:
           if (Number(obj.block) === 1) user_block.push(obj);
-          else ary.push(obj);
+          else if (Number(obj.hide) === 0) ary.push(obj);
           break;
       };
     });
@@ -354,14 +340,15 @@ function _getChat(user){
     "chatbox-title"._().parentElement.classList.add('show');
     "chatbox-body"._().innerHTML = null;
     const isBlock = snapshot.val() ? snapshot.val().block : null;
+    const isHide = snapshot.val() ? snapshot.val().hide : null;
     isBlock ? "chatbox-body"._().parentElement.classList.add('block') : "chatbox-body"._().parentElement.classList.remove('block');
-    initChat(isBlock);
+    initChat(isBlock, snapshot.exists(), isHide);
     if (!snapshot.exists()) return;
     Object.keys(snapshot.val())
     /* 排序 -> 舊到新 */
     .sort((a, b) => a - b)
     .forEach((timestamp) => {
-      if (timestamp === "block") return;
+      if (timestamp === "block" || timestamp === "hide") return;
       /* 聊天內容 */
       const val     = snapshot.val()[timestamp];
       const isOwner = Boolean(String(val.from) === String(auth_user.uid));
@@ -420,6 +407,7 @@ function postChat(str){
     from    : auth_user.uid,
     read    : 0
   });
+  set(ref(db, `chat/${auth_user.uid}/${chatbox_user.uid}/hide`), null);
   
   /* 對方收件匣紀錄 */
   set(ref(db, `chatbox/${chatbox_user.uid}/${auth_user.uid}`), {
@@ -445,12 +433,13 @@ function postChat(str){
   });
 };
 /* 聊天框按鈕 */
-function initChat(isBlock){
+function initChat(isBlock, isExist, isHide){
+  isBlock ? "btn-chatbox-user"._().parentElement.classList.add('block') : "btn-chatbox-user"._().parentElement.classList.remove('block')
   if ("btn-chatbox-user"._()) "btn-chatbox-user"._().onclick = function(){
     
   };
   if ("btn-chatbox-block"._()) {
-    isBlock ? "btn-chatbox-block"._().classList.add('selected') : "btn-chatbox-block"._().classList.remove('selected')
+    isBlock ? "btn-chatbox-block"._().classList.add('selected') : "btn-chatbox-block"._().classList.remove('selected');
     "btn-chatbox-block"._().onclick = function(){
       if (!confirm(`${!isBlock ? "" : "解除"}封鎖${!isBlock ? "用戶" : ""}，確認？`)) return;
       let now           = Math.floor(Date.now() / 1000);
@@ -461,20 +450,44 @@ function initChat(isBlock){
       chatboxUpdate[`chatbox/${auth_user.uid}/${chatbox_user.uid}/head`]    = chatbox_user.head;
       chatboxUpdate[`chatbox/${auth_user.uid}/${chatbox_user.uid}/block`]   = !isBlock ? 1 : 0;
       chatboxUpdate[`chatbox/${auth_user.uid}/${chatbox_user.uid}/update`]  = now;
-      chatUpdate[`chat/${auth_user.uid}/${chatbox_user.uid}/block`] = !isBlock ? 1 : 0;
+      chatUpdate[`chat/${auth_user.uid}/${chatbox_user.uid}/block`] = !isBlock ? 1 : null;
       update(ref(db), chatboxUpdate);
       update(ref(db), chatUpdate);
       !isBlock ? "get-auths-block"._().click() : "get-chatbox"._().click();
     }
   };
   /* 對話 - 刪除對話 */
-  if ("btn-chatbox-delete"._()) "btn-chatbox-delete"._().onclick = function(){
-    if (!confirm('刪除對話，確認？')) return;
-    /* 個人收件匣紀錄 */
-    set(ref(db, `chatbox/${auth_user.uid}/${chatbox_user.uid}`), null);
-    /* 個人對話內容紀錄 */
-    set(ref(db, `chat/${auth_user.uid}/${chatbox_user.uid}`), null);
-  };
+  if ("btn-chatbox-delete"._()) {
+    const vw = document.body.clientWidth;
+    if (!isExist)               "btn-chatbox-delete"._().style["display"] = "none";
+    if (vw >= 480 && vw < 1024) "btn-chatbox-delete"._().style["display"] = "block"
+    else                        "btn-chatbox-delete"._().style["display"] = "inline-block";
+    "btn-chatbox-delete"._().onclick = function(){
+      if (!confirm('刪除對話，確認？')) return;
+      /* 個人收件匣紀錄 */
+      set(ref(db, `chatbox/${auth_user.uid}/${chatbox_user.uid}`), null);
+      /* 個人對話內容紀錄 */
+      set(ref(db, `chat/${auth_user.uid}/${chatbox_user.uid}`), null);
+      /* 關閉對話 */
+      "btn-chatbox-close"._().click();
+    };
+  }
+  /* 對話 - 封存對話 */
+  if ("btn-chatbox-hide"._()) {
+    window.onresize = function(){
+      const vw = document.body.clientWidth;
+      if (!isExist)               "btn-chatbox-hide"._().style["display"] = "none";
+      if (vw >= 480 && vw < 1024) "btn-chatbox-hide"._().style["display"] = "block"
+      else                        "btn-chatbox-hide"._().style["display"] = "inline-block";
+    }
+    isHide ? "btn-chatbox-hide"._().classList.add('selected') : "btn-chatbox-hide"._().classList.remove('selected')
+    "btn-chatbox-hide"._().onclick = function(){
+      /* 個人收件匣紀錄 */
+      set(ref(db, `chatbox/${auth_user.uid}/${chatbox_user.uid}/hide`), isHide ? 0 : 1);
+      /* 個人對話內容紀錄 */
+      set(ref(db, `chat/${auth_user.uid}/${chatbox_user.uid}/hide`), isHide ? null : 1);
+    };
+  }
   if ("btn-chatbox-close"._()) "btn-chatbox-close"._().onclick = function(){
     closeChatbox()
   };
