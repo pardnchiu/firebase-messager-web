@@ -1,6 +1,6 @@
 # Firebase Messager
 
-透過 **Firebase** 在 **靜態網頁 (Static Web)** 上打造 **即時訊息 (Realtime Message)** 功能
+透過 **Firebase** 在 **靜態網頁 (Static Web)** 上打造 **即時訊息 (Realtime Messaging)** 功能
 
 <br>
 
