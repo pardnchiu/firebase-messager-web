@@ -2,7 +2,7 @@
 
 透過 **Firebase** 在 **靜態網頁 (Static Web)** 上打造 **即時訊息 (Realtime Message)** 功能
 
-***
+<br>
 
 ### 介紹
 
@@ -42,6 +42,14 @@
   ```
   open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
   ```
+- Chrome (Windows)
+  ```
+  "[PATH_TO_CHROME]\chrome.exe" --disable-web-security --disable-gpu --user-data-dir=~/chromeTemp
+  ```
+- Chrome (Linux)
+  ```
+  google-chrome --disable-web-security
+  ```
 
 <br>
 
@@ -58,5 +66,7 @@
 | 貼上專案資訊 |
 | --- |
 | ![project-index](./preview/paste-data.png) |
+
+<br>
 
 Copyright (c) 2022 [Pardn Ltd 帕登國際有限公司](mailto:mail@pardn.ltd)
