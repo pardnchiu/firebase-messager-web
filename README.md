@@ -9,7 +9,6 @@
 - 名稱: [Firebase Messager (Web ver.)](https://pardnchiu.github.io/firebase-messager-web/)
 - 開發: [Pardn Chiu](https://facebook.com/chiuchingwei) / [信箱](mailto:chiuchingwei@icloud.com)
 - 授權: [MIT License](./LICENSE)
-- 源碼: [Github](https://github.com/pardnchiu/firebase-messager-web)
 
 <br>
 
